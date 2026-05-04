@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HoopZone — Basketball Info</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --orange:#F4631A;--orange-dark:#C94E12;--black:#0D0D0D;--dark:#161616;
+  --card:#1E1E1E;--card2:#252525;--border:rgba(255,255,255,0.07);
+  --text:#F5F5F5;--muted:#888;
+  --font-display:'Barlow Condensed',sans-serif;--font-body:'Barlow',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--black);color:var(--text);font-family:var(--font-body);font-weight:400;line-height:1.6}
+nav{position:sticky;top:0;z-index:100;background:rgba(13,13,13,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:60px}
+.logo{font-family:var(--font-display);font-size:1.6rem;font-weight:800;letter-spacing:1px;color:var(--text)}
+.logo span{color:var(--orange)}
+nav ul{list-style:none;display:flex;gap:1.4rem;flex-wrap:wrap}
+nav a{text-decoration:none;color:var(--muted);font-size:0.78rem;font-weight:500;letter-spacing:0.5px;text-transform:uppercase;transition:color 0.2s}
+nav a:hover{color:var(--orange)}
+nav a.active{color:var(--orange);border-bottom:2px solid var(--orange);padding-bottom:2px}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px}
+.hamburger span{display:block;width:22px;height:2px;background:var(--text);border-radius:2px;transition:all 0.3s}
+.hamburger.open span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px)}
+.mobile-menu{display:none;position:fixed;top:60px;left:0;right:0;background:rgba(13,13,13,0.98);border-bottom:1px solid var(--border);padding:1.5rem 2rem;z-index:99;flex-direction:column;gap:1.2rem}
+.mobile-menu.open{display:flex}
+.mobile-menu a{text-decoration:none;color:var(--muted);font-size:1.1rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;transition:color 0.2s}
+.mobile-menu a:hover,.mobile-menu a.active{color:var(--orange)}
+@media(max-width:700px){nav ul{display:none}.hamburger{display:flex}}
+.hero{min-height:92vh;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:4rem 2rem 4rem 6vw;position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 70% 50%,rgba(244,99,26,0.12) 0%,transparent 70%);pointer-events:none}
+.hero-ball{position:absolute;right:-4vw;top:50%;transform:translateY(-50%);width:min(55vw,600px);aspect-ratio:1;border-radius:50%;background:conic-gradient(from 30deg,#2a1408,#c94e12 20%,#f4631a 35%,#2a1408 50%,#c94e12 70%,#f4631a 85%,#2a1408);opacity:0.18}
+.hero-tag{font-size:0.75rem;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--orange);margin-bottom:1rem}
+.hero h1{font-family:var(--font-display);font-size:clamp(3.5rem,10vw,7rem);font-weight:800;line-height:0.95;text-transform:uppercase;max-width:700px}
+.hero h1 span{color:var(--orange)}
+.hero p{font-size:1.1rem;color:var(--muted);max-width:480px;margin:1.5rem 0 2.5rem;font-weight:300}
+.btn{display:inline-block;background:var(--orange);color:#fff;text-decoration:none;font-family:var(--font-display);font-size:1rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:0.85rem 2.5rem;border:none;cursor:pointer;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,0 100%);transition:background 0.2s,transform 0.15s}
+.btn:hover{background:var(--orange-dark);transform:translateY(-2px)}
+section{padding:5rem 2rem}
+.section-label{font-size:0.7rem;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:var(--orange);margin-bottom:0.5rem}
+.section-title{font-family:var(--font-display);font-size:clamp(2rem,5vw,3.2rem);font-weight:800;text-transform:uppercase;line-height:1;margin-bottom:3rem}
+.section-inner{max-width:1200px;margin:0 auto}
+.stats-bar{background:var(--orange);padding:0.9rem 2rem;display:flex;gap:3rem;justify-content:center;flex-wrap:wrap}
+.stat-item{text-align:center}
+.stat-num{font-family:var(--font-display);font-size:1.8rem;font-weight:800;color:#fff;line-height:1}
+.stat-lbl{font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.7)}
+#teams{background:var(--dark)}
+.teams-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem}
+.team-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:1.5rem;cursor:pointer;transition:border-color 0.2s,transform 0.2s;position:relative;overflow:hidden}
+.team-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--team-color,var(--orange))}
+.team-card:hover{border-color:rgba(255,255,255,0.2);transform:translateY(-4px)}
+.team-abbr{font-family:var(--font-display);font-size:2.5rem;font-weight:800;color:var(--team-color,var(--orange));line-height:1}
+.team-name{font-size:0.95rem;font-weight:500;margin:0.3rem 0 0.1rem}
+.team-city{font-size:0.8rem;color:var(--muted)}
+.team-record{margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:0.8rem;color:var(--muted)}
+.team-record span:first-child{font-weight:600;color:var(--text)}
+.players-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem}
+.player-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:1.5rem;display:flex;gap:1rem;align-items:flex-start;transition:border-color 0.2s}
+.player-card:hover{border-color:rgba(255,255,255,0.2)}
+.player-num{font-family:var(--font-display);font-size:3rem;font-weight:800;color:var(--card2);line-height:1;min-width:54px;text-align:center}
+.player-info{flex:1}
+.player-name{font-family:var(--font-display);font-size:1.2rem;font-weight:700}
+.player-pos{font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:var(--orange);margin:0.2rem 0 0.8rem}
+.player-stats{display:flex;gap:1rem}
+.pstat{text-align:center}
+.pstat-val{font-family:var(--font-display);font-size:1.3rem;font-weight:700}
+.pstat-lbl{font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+#news{background:var(--dark)}
+.news-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem}
+.news-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:1.5rem;transition:border-color 0.2s}
+.news-card:hover{border-color:rgba(255,255,255,0.2)}
+.news-tag{display:inline-block;font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--orange);border:1px solid var(--orange);padding:2px 8px;border-radius:2px;margin-bottom:0.8rem}
+.news-title{font-family:var(--font-display);font-size:1.2rem;font-weight:700;line-height:1.2;margin-bottom:0.7rem}
+.news-excerpt{font-size:0.88rem;color:var(--muted);line-height:1.7;margin-bottom:1rem}
+.news-meta{font-size:0.75rem;color:rgba(136,136,136,0.6)}
+#standings{background:var(--black)}
+.standings-table{width:100%;border-collapse:collapse;font-size:0.9rem}
+.standings-table thead tr{border-bottom:2px solid var(--orange)}
+.standings-table th{font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:var(--muted);padding:0.75rem 1rem;text-align:left}
+.standings-table td{padding:0.9rem 1rem;border-bottom:1px solid var(--border)}
+.standings-table tr:hover td{background:var(--card2)}
+.rank{font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--muted)}
+.team-n{font-weight:500}
+.wins{font-weight:600;color:#5CDB95}
+.losses{color:var(--muted)}
+.pct{font-family:var(--font-display);font-weight:700}
+.streak-w{color:#5CDB95;font-size:0.8rem}
+.streak-l{color:#E24B4A;font-size:0.8rem}
+.conf-header td{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:3px;color:var(--orange);padding:1.2rem 1rem 0.4rem;background:transparent;border-bottom:none}
+#history{background:var(--dark)}
+.timeline{position:relative;padding-left:2rem}
+.timeline::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--border)}
+.timeline-item{position:relative;margin-bottom:2.5rem;padding-left:1.5rem}
+.timeline-item::before{content:'';position:absolute;left:-2.4rem;top:0.4rem;width:12px;height:12px;border-radius:50%;background:var(--orange);border:2px solid var(--black)}
+.timeline-year{font-family:var(--font-display);font-size:1.6rem;font-weight:800;color:var(--orange);line-height:1}
+.timeline-event{font-size:1rem;font-weight:600;margin:0.2rem 0 0.4rem;color:var(--text)}
+.timeline-desc{font-size:0.88rem;color:var(--muted);line-height:1.7;max-width:700px}
+.legends-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;margin-top:2rem}
+.legend-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:1.5rem;transition:border-color 0.2s,transform 0.2s}
+.legend-card:hover{border-color:rgba(255,255,255,0.2);transform:translateY(-3px)}
+.legend-era{font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--orange);margin-bottom:0.4rem}
+.legend-name{font-family:var(--font-display);font-size:1.5rem;font-weight:800;line-height:1;margin-bottom:0.3rem}
+.legend-team{font-size:0.8rem;color:var(--muted);margin-bottom:1rem}
+.legend-bio{font-size:0.85rem;color:var(--muted);line-height:1.7;margin-bottom:1rem}
+.legend-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;border-top:1px solid var(--border);padding-top:1rem}
+.lstat{text-align:center}
+.lstat-val{font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--text)}
+.lstat-lbl{font-size:0.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+#positions{background:var(--black)}
+.positions-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem}
+.position-card{background:var(--card);border:1px solid var(--border);border-top:3px solid var(--pos-color,var(--orange));border-radius:4px;padding:1.5rem}
+.pos-number{font-family:var(--font-display);font-size:4rem;font-weight:800;color:var(--pos-color,var(--orange));opacity:0.15;line-height:1;float:right;margin:-0.5rem -0.5rem 0 0}
+.pos-name{font-family:var(--font-display);font-size:1.6rem;font-weight:800;text-transform:uppercase;line-height:1}
+.pos-abbr{font-size:0.7rem;font-weight:700;letter-spacing:3px;color:var(--pos-color,var(--orange));margin:0.2rem 0 0.8rem;display:block}
+.pos-desc{font-size:0.87rem;color:var(--muted);line-height:1.7;margin-bottom:1rem}
+.pos-skills{display:flex;flex-wrap:wrap;gap:0.4rem}
+.skill-tag{font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;padding:3px 10px;border-radius:2px;background:rgba(244,99,26,0.1);color:var(--orange);border:1px solid rgba(244,99,26,0.2)}
+.pos-examples{margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);font-size:0.8rem;color:var(--muted)}
+.pos-examples strong{color:var(--text);font-weight:500}
+.rules-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem}
+.rule-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:1.5rem}
+.rule-icon{font-size:1.8rem;margin-bottom:0.8rem}
+.rule-title{font-family:var(--font-display);font-size:1.2rem;font-weight:700;margin-bottom:0.5rem}
+.rule-text{font-size:0.87rem;color:var(--muted);line-height:1.7}
+.rule-highlight{display:inline-block;font-size:0.75rem;font-weight:700;color:#5CDB95;background:rgba(92,219,149,0.08);border:1px solid rgba(92,219,149,0.2);padding:2px 8px;border-radius:2px;margin-top:0.6rem}
+#hof{background:var(--dark)}
+.hof-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem}
+.hof-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:1.5rem;position:relative;overflow:hidden;transition:border-color 0.2s,transform 0.2s}
+.hof-card:hover{border-color:rgba(244,99,26,0.4);transform:translateY(-3px)}
+.hof-card::after{content:'HOF';position:absolute;right:-8px;top:16px;background:var(--orange);color:#fff;font-family:var(--font-display);font-size:0.65rem;font-weight:800;letter-spacing:2px;padding:3px 16px}
+.hof-year{font-size:0.7rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--orange);margin-bottom:0.3rem}
+.hof-name{font-family:var(--font-display);font-size:1.5rem;font-weight:800;line-height:1;margin-bottom:0.2rem}
+.hof-role{font-size:0.8rem;color:var(--muted);margin-bottom:0.8rem}
+.hof-desc{font-size:0.85rem;color:var(--muted);line-height:1.7;margin-bottom:1rem}
+.hof-achievements{display:flex;flex-direction:column;gap:0.3rem}
+.hof-achievement{font-size:0.78rem;color:var(--text);padding-left:0.8rem;position:relative}
+.hof-achievement::before{content:'&#9658;';position:absolute;left:0;color:var(--orange);font-size:0.6rem;top:2px}
+#records{background:var(--black)}
+.records-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
+.record-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:1.5rem;transition:border-color 0.2s}
+.record-card:hover{border-color:rgba(255,255,255,0.2)}
+.record-cat{font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--orange);margin-bottom:0.5rem}
+.record-val{font-family:var(--font-display);font-size:3rem;font-weight:800;line-height:1;color:var(--text)}
+.record-unit{font-size:0.9rem;color:var(--muted);margin-left:4px}
+.record-holder{font-size:0.95rem;font-weight:600;margin:0.3rem 0 0.2rem}
+.record-context{font-size:0.82rem;color:var(--muted);line-height:1.6}
+#glossary{background:var(--dark)}
+.glossary-search{width:100%;max-width:500px;background:var(--card);border:1px solid var(--border);border-radius:4px;padding:0.75rem 1rem;color:var(--text);font-family:var(--font-body);font-size:1rem;margin-bottom:2rem;outline:none;transition:border-color 0.2s}
+.glossary-search:focus{border-color:var(--orange)}
+.glossary-search::placeholder{color:var(--muted)}
+.glossary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
+.gloss-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:1.2rem 1.5rem;transition:border-color 0.2s}
+.gloss-card:hover{border-color:rgba(255,255,255,0.15)}
+.gloss-term{font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--orange);margin-bottom:0.3rem}
+.gloss-def{font-size:0.85rem;color:var(--muted);line-height:1.7}
+.gloss-hidden{display:none}
+footer{background:var(--dark);border-top:1px solid var(--border);padding:2rem;text-align:center;font-size:0.8rem;color:var(--muted)}
+footer span{color:var(--orange)}
+.fade-up{opacity:0;transform:translateY(24px);transition:opacity 0.5s ease,transform 0.5s ease}
+.fade-up.visible{opacity:1;transform:translateY(0)}
+@media(max-width:600px){.hero{padding:3rem 1.5rem}section{padding:3rem 1.2rem}.timeline{padding-left:1.2rem}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Hoop<span>Zone</span></div>
+  <ul id="navLinks">
+    <li><a href="#teams" class="nav-link">Teams</a></li>
+    <li><a href="#players" class="nav-link">Players</a></li>
+    <li><a href="#news" class="nav-link">News</a></li>
+    <li><a href="#standings" class="nav-link">Standings</a></li>
+    <li><a href="#history" class="nav-link">History</a></li>
+    <li><a href="#positions" class="nav-link">Positions</a></li>
+    <li><a href="#hof" class="nav-link">Hall of Fame</a></li>
+    <li><a href="#records" class="nav-link">Records</a></li>
+    <li><a href="#glossary" class="nav-link">Glossary</a></li>
+  </ul>
+  <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#teams" class="nav-link mobile-link">Teams</a>
+  <a href="#players" class="nav-link mobile-link">Players</a>
+  <a href="#news" class="nav-link mobile-link">News</a>
+  <a href="#standings" class="nav-link mobile-link">Standings</a>
+  <a href="#history" class="nav-link mobile-link">History</a>
+  <a href="#positions" class="nav-link mobile-link">Positions</a>
+  <a href="#hof" class="nav-link mobile-link">Hall of Fame</a>
+  <a href="#records" class="nav-link mobile-link">Records</a>
+  <a href="#glossary" class="nav-link mobile-link">Glossary</a>
+</div>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-ball"></div>
+  <p class="hero-tag">&#9679; The Complete Basketball Encyclopedia</p>
+  <h1>Your <span>Ultimate</span><br>Basketball<br>Hub</h1>
+  <p>Teams, players, history, legends, rules, records and more — everything basketball in one place.</p>
+  <a href="#teams" class="btn">Explore Now</a>
+</section>
+
+<div class="stats-bar">
+  <div class="stat-item"><div class="stat-num">30</div><div class="stat-lbl">NBA Teams</div></div>
+  <div class="stat-item"><div class="stat-num">450+</div><div class="stat-lbl">Active Players</div></div>
+  <div class="stat-item"><div class="stat-num">75+</div><div class="stat-lbl">Years of NBA</div></div>
+  <div class="stat-item"><div class="stat-num">400+</div><div class="stat-lbl">Hall of Famers</div></div>
+  <div class="stat-item"><div class="stat-num">82</div><div class="stat-lbl">Games Per Season</div></div>
+</div>
+
+<section id="teams">
+  <div class="section-inner">
+    <p class="section-label">&#9679; All 30 Teams</p>
+    <h2 class="section-title">Teams</h2>
+    <div class="teams-grid" id="teamsGrid"></div>
+  </div>
+</section>
+
+<section id="players">
+  <div class="section-inner">
+    <p class="section-label">&#9679; Top Performers 2024-25</p>
+    <h2 class="section-title">Featured Players</h2>
+    <div class="players-grid" id="playersGrid"></div>
+  </div>
+</section>
+
+<section id="news">
+  <div class="section-inner">
+    <p class="section-label">&#9679; Latest Updates</p>
+    <h2 class="section-title">News</h2>
+    <div class="news-grid" id="newsGrid"></div>
+  </div>
+</section>
+
+<section id="standings">
+  <div class="section-inner">
+    <p class="section-label">&#9679; 2024-25 Season</p>
+    <h2 class="section-title">Standings</h2>
+    <table class="standings-table">
+      <thead><tr><th>#</th><th>Team</th><th>W</th><th>L</th><th>PCT</th><th>GB</th><th>Streak</th></tr></thead>
+      <tbody id="standingsBody"></tbody>
+    </table>
+  </div>
+</section>
+
+<section id="history">
+  <div class="section-inner">
+    <p class="section-label">&#9679; Since 1891</p>
+    <h2 class="section-title">NBA History</h2>
+    <div class="timeline" id="timeline"></div>
+    <div style="margin-top:4rem">
+      <p class="section-label">&#9679; The All-Time Greats</p>
+      <h3 style="font-family:var(--font-display);font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;text-transform:uppercase;line-height:1;margin-bottom:0.5rem">Legends of the Game</h3>
+      <p style="color:var(--muted);font-size:0.9rem;margin-bottom:0">The greatest players to ever lace up</p>
+      <div class="legends-grid" id="legendsGrid"></div>
+    </div>
+  </div>
+</section>
+
+<section id="positions">
+  <div class="section-inner">
+    <p class="section-label">&#9679; Know the Game</p>
+    <h2 class="section-title">Positions Guide</h2>
+    <div class="positions-grid" id="positionsGrid"></div>
+    <div style="margin-top:4rem">
+      <p class="section-label">&#9679; How Basketball Works</p>
+      <h3 style="font-family:var(--font-display);font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;text-transform:uppercase;line-height:1;margin-bottom:2rem">Rules of Basketball</h3>
+      <div class="rules-grid" id="rulesGrid"></div>
+    </div>
+  </div>
+</section>
+
+<section id="hof">
+  <div class="section-inner">
+    <p class="section-label">&#9679; Springfield, Massachusetts</p>
+    <h2 class="section-title">Hall of Fame</h2>
+    <div class="hof-grid" id="hofGrid"></div>
+  </div>
+</section>
+
+<section id="records">
+  <div class="section-inner">
+    <p class="section-label">&#9679; All-Time NBA Records</p>
+    <h2 class="section-title">Greatest Records</h2>
+    <div class="records-grid" id="recordsGrid"></div>
+  </div>
+</section>
+
+<section id="glossary">
+  <div class="section-inner">
+    <p class="section-label">&#9679; Basketball Dictionary</p>
+    <h2 class="section-title">Glossary</h2>
+    <input class="glossary-search" id="glossSearch" type="text" placeholder="Search a term... (e.g. pick and roll, triple-double)">
+    <div class="glossary-grid" id="glossGrid"></div>
+  </div>
+</section>
+
+<footer>
+  <p>Built with passion for the game &nbsp;|&nbsp; <span>HoopZone</span> &copy; 2025</p>
+  <p style="margin-top:0.4rem">A portfolio project by Thando &mdash; Web Developer</p>
+</footer>
+
+<script>
+const teams=[
+  {abbr:'BOS',name:'Celtics',city:'Boston',color:'#007A33',w:61,l:21,conf:'East',founded:1946,titles:18,arena:'TD Garden'},
+  {abbr:'NYK',name:'Knicks',city:'New York',color:'#F58426',w:55,l:27,conf:'East',founded:1946,titles:2,arena:'Madison Square Garden'},
+  {abbr:'MIL',name:'Bucks',city:'Milwaukee',color:'#00471B',w:49,l:33,conf:'East',founded:1968,titles:2,arena:'Fiserv Forum'},
+  {abbr:'CLE',name:'Cavaliers',city:'Cleveland',color:'#6F2633',w:48,l:34,conf:'East',founded:1970,titles:1,arena:'Rocket Mortgage FieldHouse'},
+  {abbr:'IND',name:'Pacers',city:'Indiana',color:'#002D62',w:47,l:35,conf:'East',founded:1967,titles:0,arena:'Gainbridge Fieldhouse'},
+  {abbr:'MIA',name:'Heat',city:'Miami',color:'#98002E',w:46,l:36,conf:'East',founded:1988,titles:3,arena:'Kaseya Center'},
+  {abbr:'PHI',name:'76ers',city:'Philadelphia',color:'#006BB6',w:43,l:39,conf:'East',founded:1946,titles:3,arena:'Wells Fargo Center'},
+  {abbr:'ATL',name:'Hawks',city:'Atlanta',color:'#C1D32F',w:40,l:42,conf:'East',founded:1946,titles:1,arena:'State Farm Arena'},
+  {abbr:'OKC',name:'Thunder',city:'Oklahoma City',color:'#007AC1',w:57,l:25,conf:'West',founded:1967,titles:1,arena:'Paycom Center'},
+  {abbr:'MIN',name:'Timberwolves',city:'Minnesota',color:'#0C2340',w:56,l:26,conf:'West',founded:1989,titles:0,arena:'Target Center'},
+  {abbr:'DEN',name:'Nuggets',city:'Denver',color:'#0E2240',w:50,l:32,conf:'West',founded:1967,titles:1,arena:'Ball Arena'},
+  {abbr:'LAC',name:'Clippers',city:'Los Angeles',color:'#C8102E',w:47,l:35,conf:'West',founded:1970,titles:0,arena:'Intuit Dome'},
+  {abbr:'PHX',name:'Suns',city:'Phoenix',color:'#1D1160',w:46,l:36,conf:'West',founded:1968,titles:0,arena:'Footprint Center'},
+  {abbr:'SAC',name:'Kings',city:'Sacramento',color:'#5A2D81',w:45,l:37,conf:'West',founded:1945,titles:1,arena:'Golden 1 Center'},
+  {abbr:'GSW',name:'Warriors',city:'Golden State',color:'#FFC72C',w:44,l:38,conf:'West',founded:1946,titles:7,arena:'Chase Center'},
+  {abbr:'LAL',name:'Lakers',city:'Los Angeles',color:'#552583',w:42,l:40,conf:'West',founded:1947,titles:17,arena:'Crypto.com Arena'},
+];
+
+const players=[
+  {num:0,name:'Jayson Tatum',team:'Boston Celtics',pos:'SF',pts:26.9,reb:8.1,ast:4.9,age:26,height:"6'8\"",draft:'2017 #3'},
+  {num:3,name:'Nikola Jokic',team:'Denver Nuggets',pos:'C',pts:26.4,reb:12.4,ast:9.0,age:29,height:"6'11\"",draft:'2014 #41'},
+  {num:10,name:'Luka Doncic',team:'Dallas Mavericks',pos:'PG',pts:33.9,reb:9.2,ast:9.8,age:25,height:"6'7\"",draft:'2018 #3'},
+  {num:23,name:'LeBron James',team:'LA Lakers',pos:'SF',pts:25.7,reb:7.3,ast:8.3,age:40,height:"6'9\"",draft:'2003 #1'},
+  {num:30,name:'Stephen Curry',team:'Golden State Warriors',pos:'PG',pts:26.4,reb:4.4,ast:5.1,age:36,height:"6'2\"",draft:'2009 #7'},
+  {num:34,name:'Giannis Antetokounmpo',team:'Milwaukee Bucks',pos:'PF',pts:30.4,reb:11.5,ast:6.5,age:30,height:"6'11\"",draft:'2013 #15'},
+  {num:11,name:'Shai Gilgeous-Alexander',team:'OKC Thunder',pos:'PG',pts:30.1,reb:5.5,ast:6.2,age:26,height:"6'6\"",draft:'2018 #11'},
+  {num:7,name:'Kevin Durant',team:'Phoenix Suns',pos:'SF',pts:27.1,reb:6.7,ast:4.4,age:36,height:"6'10\"",draft:'2007 #2'},
+];
+
+const news=[
+  {tag:'Trade Deadline',title:'Major blockbuster trades reshape the Eastern Conference picture',excerpt:'Several contenders made aggressive moves at the deadline, acquiring key pieces ahead of the playoff push. The ripple effects are already being felt across both conferences.',date:'Mar 12, 2025'},
+  {tag:'MVP Race',title:'Three-way battle for MVP award entering final stretch of season',excerpt:'Jokic, Giannis, and SGA are neck-and-neck in one of the most competitive MVP races in years. Analysts are divided and every remaining game counts.',date:'Mar 10, 2025'},
+  {tag:'Injury Update',title:'Star point guard expected back before playoffs after knee injury',excerpt:'Team medical staff confirmed the recovery timeline is ahead of schedule, giving fans renewed hope for a deep playoff run this spring.',date:'Mar 8, 2025'},
+  {tag:'Playoffs',title:'Play-in tournament bracket begins to take shape in the West',excerpt:'Five teams are separated by just two games with less than 15 remaining. The race for the final two play-in spots is heating up.',date:'Mar 6, 2025'},
+  {tag:'Records',title:'LeBron James sets yet another all-time assists milestone in win',excerpt:'The ageless wonder continues to rewrite the record books in his 22nd NBA season, cementing his legacy as the most complete player ever.',date:'Mar 4, 2025'},
+  {tag:'Draft',title:'Top 2025 draft prospects showcased elite talent at combine',excerpt:'Several prospects raised their stock significantly with standout performances in front of NBA scouts and front offices from across the league.',date:'Mar 2, 2025'},
+];
+
+const standings=[
+  {conf:'Eastern Conference',teams:[
+    {r:1,name:'Boston Celtics',w:61,l:21,pct:'.744',gb:'-',streak:'W3'},
+    {r:2,name:'New York Knicks',w:55,l:27,pct:'.671',gb:'6.0',streak:'W1'},
+    {r:3,name:'Milwaukee Bucks',w:49,l:33,pct:'.598',gb:'12.0',streak:'L2'},
+    {r:4,name:'Cleveland Cavaliers',w:48,l:34,pct:'.585',gb:'13.0',streak:'W2'},
+    {r:5,name:'Indiana Pacers',w:47,l:35,pct:'.573',gb:'14.0',streak:'L1'},
+    {r:6,name:'Miami Heat',w:46,l:36,pct:'.561',gb:'15.0',streak:'W1'},
+  ]},
+  {conf:'Western Conference',teams:[
+    {r:1,name:'OKC Thunder',w:57,l:25,pct:'.695',gb:'-',streak:'W5'},
+    {r:2,name:'Minnesota Timberwolves',w:56,l:26,pct:'.683',gb:'1.0',streak:'W2'},
+    {r:3,name:'Denver Nuggets',w:50,l:32,pct:'.610',gb:'7.0',streak:'L1'},
+    {r:4,name:'LA Clippers',w:47,l:35,pct:'.573',gb:'10.0',streak:'W1'},
+    {r:5,name:'Phoenix Suns',w:46,l:36,pct:'.561',gb:'11.0',streak:'L3'},
+    {r:6,name:'Sacramento Kings',w:45,l:37,pct:'.549',gb:'12.0',streak:'W2'},
+  ]},
+];
+
+const history=[
+  {year:'1891',event:'Basketball Is Invented',desc:'Dr. James Naismith invents basketball at the YMCA in Springfield, Massachusetts. He nailed two peach baskets to an elevated track and wrote 13 basic rules. The first game was played with a soccer ball.'},
+  {year:'1946',event:'The BAA Is Founded',desc:'The Basketball Association of America (BAA) is founded with 11 teams. The first game is played on November 1, 1946, between the Toronto Huskies and the New York Knickerbockers.'},
+  {year:'1949',event:'Birth of the NBA',desc:'The BAA merges with the National Basketball League (NBL) to create the National Basketball Association (NBA). The new league starts with 17 teams across two divisions.'},
+  {year:'1950',event:'Racial Integration of the NBA',desc:'Chuck Cooper, Nat "Sweetwater" Clifton, and Earl Lloyd become the first Black players in the NBA, breaking the color barrier and paving the way for generations of players.'},
+  {year:'1962',event:'Wilt Scores 100 Points',desc:'On March 2, 1962, Wilt Chamberlain scores 100 points for the Philadelphia Warriors against the New York Knicks — an NBA record that still stands today, over 60 years later.'},
+  {year:'1979',event:'Magic vs Bird — The Greatest Rivalry',desc:'Magic Johnson and Larry Bird enter the NBA, transforming the league. Their rivalry elevated the NBA\'s popularity to new heights throughout the 1980s and saved the league during a difficult period.'},
+  {year:'1984',event:'Michael Jordan Drafted',desc:'The Chicago Bulls select Michael Jordan with the 3rd pick of the 1984 NBA Draft. Jordan goes on to win 6 championships, 5 MVPs, and becomes widely considered the greatest player of all time.'},
+  {year:'1992',event:'The Dream Team',desc:'The first US Olympic team featuring NBA players wins gold in Barcelona. The squad included Jordan, Magic, Bird, Barkley, and Ewing — and averaged a margin of victory of 43.8 points per game.'},
+  {year:'2003',event:'LeBron James Drafted #1 Overall',desc:'LeBron James, hailed as "The Chosen One" since high school, is drafted first overall by his hometown Cleveland Cavaliers. He goes on to become one of the greatest players in NBA history.'},
+  {year:'2016',event:'Cleveland Overcomes 3-1 Deficit',desc:'In one of the greatest upsets in sports history, the Cleveland Cavaliers overcome a 3-1 series deficit to beat the 73-win Golden State Warriors and claim Cleveland\'s first NBA championship.'},
+  {year:'2023',event:'LeBron Breaks All-Time Scoring Record',desc:'On February 7, 2023, LeBron James surpasses Kareem Abdul-Jabbar\'s all-time NBA scoring record of 38,387 points, cementing his legacy as the most prolific scorer in league history.'},
+];
+
+const legends=[
+  {era:'1960s-70s',name:'Bill Russell',teams:'Boston Celtics',bio:'The ultimate winner — Russell won 11 NBA championships in 13 seasons. A defensive revolutionary who changed how the game was played around the basket. Also served as a player-coach, becoming the first Black head coach in major US pro sports.',pts:15.1,reb:22.5,ast:4.3},
+  {era:'1960s-70s',name:'Wilt Chamberlain',teams:'Warriors / 76ers / Lakers',bio:'The most dominant physical force the NBA has ever seen. Chamberlain averaged 50.4 points per game in 1961-62 and is the only player to score 100 in a single game. He never fouled out of a game in his entire career.',pts:30.1,reb:22.9,ast:4.4},
+  {era:'1980s',name:'Magic Johnson',teams:'Los Angeles Lakers',bio:'The 6\'9" point guard who redefined the position. Magic led the Showtime Lakers to 5 championships and won 3 MVP awards. His no-look passes and court vision were decades ahead of their time.',pts:19.5,reb:7.2,ast:11.2},
+  {era:'1980s',name:'Larry Bird',teams:'Boston Celtics',bio:'The Hick from French Lick. Bird\'s shooting, basketball IQ, and legendary trash-talking defined an era. He won 3 consecutive MVPs and 3 championships, and is considered the greatest small forward ever by many.',pts:24.3,reb:10.0,ast:6.3},
+  {era:'1990s',name:'Michael Jordan',teams:'Chicago Bulls',bio:'Six championships, six Finals MVPs, five regular season MVPs. "His Airness" is the most complete player ever — elite scorer, elite defender, ultimate competitor. The Flu Game, The Shot, The Last Dance — his legacy is unmatched.',pts:30.1,reb:6.2,ast:5.3},
+  {era:'2000s',name:'Kobe Bryant',teams:'Los Angeles Lakers',bio:'The Black Mamba. Bryant\'s relentless work ethic, footwork, and killer mentality made him one of the all-time greats. Five championships and an 81-point game rank among basketball\'s most iconic individual moments.',pts:25.0,reb:5.2,ast:4.7},
+  {era:'2000s',name:'Tim Duncan',teams:'San Antonio Spurs',bio:'The Big Fundamental. Duncan won 5 championships with a fundamentally perfect game. His bank shot, positioning, and quiet leadership made him the cornerstone of the greatest dynasty of the 2000s.',pts:19.0,reb:10.8,ast:3.0},
+  {era:'2003-present',name:'LeBron James',teams:'Cavs / Heat / Lakers',bio:'The most complete player ever. LeBron combines scoring, playmaking, defense, and basketball IQ at the highest level across over two decades. The all-time scoring leader and a 4-time champion.',pts:27.2,reb:7.5,ast:7.3},
+];
+
+const positions=[
+  {num:1,name:'Point Guard',abbr:'PG',color:'#F4631A',desc:'The floor general and primary ball-handler. The PG runs the offense, sets up plays, and is responsible for getting teammates into scoring positions. They need exceptional vision, decision-making, and ball-handling under pressure.',skills:['Ball Handling','Court Vision','Passing','Pick & Roll','Transition'],examples:'Stephen Curry, Magic Johnson, Chris Paul, Kyrie Irving'},
+  {num:2,name:'Shooting Guard',abbr:'SG',color:'#007AC1',desc:'Typically the team\'s best perimeter scorer. The SG is expected to create their own shot off the dribble, hit catch-and-shoot opportunities, and attack mismatches. Elite SGs can also facilitate offense.',skills:['Shooting','Off-Dribble Scoring','Athleticism','Defense','Shot Creation'],examples:'Michael Jordan, Kobe Bryant, Dwyane Wade, James Harden'},
+  {num:3,name:'Small Forward',abbr:'SF',color:'#00471B',desc:'The most versatile position on the floor. Small forwards must be able to score inside and outside, defend multiple positions, and contribute across all facets of the game. Often the team\'s best all-around player.',skills:['Versatility','Mid-Range','Transition','Rebounding','Perimeter D'],examples:'LeBron James, Larry Bird, Kevin Durant, Kawhi Leonard'},
+  {num:4,name:'Power Forward',abbr:'PF',color:'#5A2D81',desc:'The physical presence in the frontcourt. Power forwards bang in the post, rebound aggressively, and set screens. In the modern NBA, many PFs have extended their game to include three-point shooting.',skills:['Post Play','Rebounding','Screening','Interior D','Stretch Shooting'],examples:'Giannis Antetokounmpo, Tim Duncan, Dirk Nowitzki, Kevin Garnett'},
+  {num:5,name:'Center',abbr:'C',color:'#98002E',desc:'The anchor of the team — protecting the rim on defense and finishing around the basket on offense. Great centers dominate the paint, control the boards, and can alter the entire defensive identity of a team.',skills:['Rim Protection','Post Scoring','Rebounding','Pick & Roll','Shot Blocking'],examples:"Nikola Jokic, Shaquille O'Neal, Bill Russell, Kareem Abdul-Jabbar"},
+];
+
+const rules=[
+  {icon:'&#x23F1;',title:'Shot Clock',text:'Teams have 24 seconds to attempt a field goal after gaining possession. If the shot clock expires without a shot hitting the rim, it is a violation and the opposing team gains possession.',highlight:'24 seconds to shoot'},
+  {icon:'&#x1F3C0;',title:'Scoring',text:'A basket from inside the three-point line is worth 2 points. Beyond the arc is 3 points. A free throw is worth 1 point. Games are 48 minutes split into four 12-minute quarters.',highlight:'2pts inside / 3pts outside / 1pt free throw'},
+  {icon:'&#x1F6B6;',title:'Travelling',text:'A player cannot take more than 2 steps without dribbling. Euro steps and gather steps are legal. Taking extra steps is a violation resulting in a turnover awarded to the defense.',highlight:'Max 2 steps without dribble'},
+  {icon:'&#x270B;',title:'Fouls & Free Throws',text:'Players are allowed 6 personal fouls before fouling out. When a team reaches 5 fouls in a quarter, subsequent fouls result in 2 free throws for the opposing team regardless of whether the shot was made.',highlight:'6 fouls = fouled out'},
+  {icon:'&#x1F504;',title:'Double Dribble',text:'A player cannot dribble the ball, stop, and then begin dribbling again. Once a player picks up their dribble, they must pass or shoot. Violating this rule results in a turnover.',highlight:'No restarting your dribble'},
+  {icon:'&#x1F590;',title:'Goaltending',text:'A defensive player cannot block a shot on its downward arc toward the basket, or touch the ball while it is on or above the rim. Offensive goaltending means an offensive player cannot touch the ball above the rim.',highlight:'Cannot block a descending shot'},
+  {icon:'&#x1F4CF;',title:'Three-Second Rule',text:'An offensive player cannot remain in the paint (the key) for more than 3 consecutive seconds while their team has possession. Defensive players also have a 3-second limit in certain situations.',highlight:'3 sec max in the paint'},
+  {icon:'&#x26A0;',title:'Flagrant & Technical Fouls',text:'A technical foul is called for unsportsmanlike conduct. A flagrant foul involves unnecessary contact. Two technicals equals ejection. Two flagrant fouls also results in ejection from the game.',highlight:'2 technicals = ejected'},
+  {icon:'&#x1F522;',title:'Overtime',text:'If the game is tied at the end of regulation, a 5-minute overtime period is played. If still tied, additional OT periods continue until a winner is determined. There is no sudden death in the NBA.',highlight:'5-minute OT periods'},
+];
+
+const hofPlayers=[
+  {year:2023,name:'Dwyane Wade',role:'Player — Shooting Guard',desc:'Three-time NBA champion and 13-time All-Star. Wade was the engine of the Miami Heat dynasty, pairing with LeBron James and Chris Bosh for back-to-back titles in 2012 and 2013.',achievements:['3x NBA Champion (2006, 2012, 2013)','13x NBA All-Star','2006 Finals MVP','All-time Miami Heat scoring leader','2008 Olympic Gold Medalist']},
+  {year:2021,name:'Kobe Bryant',role:'Player — Shooting Guard',desc:"The Black Mamba was inducted posthumously after his tragic passing in January 2020. Bryant's five championships and Mamba Mentality made him one of the most beloved figures in basketball history.",achievements:['5x NBA Champion','2x Finals MVP','1x Regular Season MVP','18x NBA All-Star','81-point game vs Toronto Raptors (2006)']},
+  {year:2020,name:'Tim Duncan',role:'Player — Power Forward / Center',desc:"The Big Fundamental was the most consistent player of his generation. Duncan's unassuming demeanor hid an almost perfect basketball IQ, and he spent his entire 19-year career with the Spurs.",achievements:['5x NBA Champion','3x Finals MVP','2x Regular Season MVP','15x NBA All-Star','Spent entire career with San Antonio']},
+  {year:2016,name:'Yao Ming',role:'Player — Center',desc:"The 7'6\" Chinese center broke barriers as an international basketball ambassador. Despite injuries shortening his career, Yao's combination of skill, size, and soft touch made him one of the most unique players ever.",achievements:['8x NBA All-Star','2002 #1 Overall Pick','Olympic Athlete representing China','Basketball Without Borders Ambassador','Transformed the NBA into a global league']},
+  {year:2010,name:'Scottie Pippen',role:'Player — Small Forward',desc:"Often overlooked because of Jordan's shadow, Pippen was one of the most complete players ever. His defense, playmaking, and versatility were critical to Chicago's dynasty.",achievements:['6x NBA Champion with Chicago Bulls','7x All-Star selection','Dream Team gold medalist 1992','All-Defensive First Team 8 times','One of the greatest defenders in NBA history']},
+  {year:2009,name:'Michael Jordan',role:'Player — Shooting Guard',desc:"The greatest basketball player of all time by most accounts. Jordan's competitive fire, work ethic, and all-around brilliance set the standard for what it means to be a basketball champion.",achievements:['6x NBA Champion with Chicago Bulls','6x Finals MVP','5x Regular Season MVP','14x NBA All-Star selection','2x Olympic Gold Medalist (1984, 1992)']},
+];
+
+const records=[
+  {cat:'Single Game Points',val:'100',unit:'pts',holder:'Wilt Chamberlain',context:'Philadelphia Warriors vs New York Knicks, March 2, 1962. The most iconic individual performance in NBA history. No other player has come close.'},
+  {cat:'Season Scoring Average',val:'50.4',unit:'PPG',holder:'Wilt Chamberlain — 1961-62',context:'Chamberlain averaged 50.4 points across 80 games. He scored 50+ points in 45 separate games that season — a record within a record.'},
+  {cat:'All-Time Points Scored',val:'38,652',unit:'pts',holder:'LeBron James',context:"LeBron surpassed Kareem Abdul-Jabbar's record of 38,387 on February 7, 2023, and continues to add to the total in his 22nd season."},
+  {cat:'All-Time Assists',val:'15,806',unit:'ast',holder:'John Stockton',context:'The Utah Jazz legend played 19 seasons and averaged 10.5 assists per game for his career. His record is considered virtually unbreakable.'},
+  {cat:'All-Time Rebounds',val:'23,924',unit:'reb',holder:'Wilt Chamberlain',context:"Chamberlain's rebounding dominance was unparalleled. He averaged 22.9 rebounds per game for his career — no modern player has come close."},
+  {cat:'Most Championships',val:'11',unit:'rings',holder:'Bill Russell',context:'Russell won 11 NBA titles in 13 seasons with the Boston Celtics (1957-1969), including 8 in a row from 1959 to 1966. The greatest dynasty in US team sports.'},
+  {cat:'Most Points in One Quarter',val:'33',unit:'pts',holder:'George Gervin',context:'The Iceman scored 33 points in a single quarter on April 9, 1978, to win the scoring title. He finished the game with 63 total points.'},
+  {cat:'Most Three-Pointers in a Game',val:'14',unit:'3PM',holder:'Klay Thompson',context:'Thompson hit 14 three-pointers against the Chicago Bulls on October 29, 2018, finishing with 52 points. He set the record in just 27 minutes of play.'},
+  {cat:'Longest Win Streak',val:'33',unit:'games',holder:'Los Angeles Lakers — 1971-72',context:'The 1971-72 Lakers, led by Wilt Chamberlain and Jerry West, won 33 straight games and finished 69-13 — a record win total at the time.'},
+  {cat:'Most Assists in a Game',val:'30',unit:'ast',holder:'Scott Skiles',context:'Skiles dished out 30 assists for the Orlando Magic against the Denver Nuggets on December 30, 1990, breaking the single-game assist record.'},
+  {cat:'Most Blocks in a Game',val:'17',unit:'blk',holder:'Elmore Smith',context:'Smith blocked 17 shots for the Los Angeles Lakers against the Portland Trail Blazers on October 28, 1973.'},
+  {cat:'Career Triple-Doubles',val:'198',unit:'TDs',holder:'Russell Westbrook',context:"Westbrook averaged a triple-double for four consecutive seasons and surpassed Oscar Robertson's all-time record of 181 career triple-doubles."},
+];
+
+const glossary=[
+  {term:'Alley-Oop',def:'A play where one player throws the ball near the basket and a teammate catches it mid-air and dunks or lays it in before landing.'},
+  {term:'And-One',def:'When a player is fouled while making a basket. The basket counts and they are awarded one additional free throw.'},
+  {term:'Assist',def:'A pass that directly leads to a made basket by a teammate. The passer receives statistical credit for an assist.'},
+  {term:'Block',def:'When a defensive player legally deflects a shot attempt with their hand, preventing a score without fouling the shooter.'},
+  {term:'Box Out',def:'Using your body to create space and gain rebounding position against an opposing player. Fundamental to controlling the boards.'},
+  {term:'Dead Ball',def:'A period when play is stopped and the shot clock is not running — after a foul, violation, or timeout is called.'},
+  {term:'Double-Double',def:'When a player records 10 or more in two statistical categories (points, rebounds, assists, blocks, or steals) in a single game.'},
+  {term:'Downtown',def:'Slang for a three-point shot, or a shot taken from far behind the arc. "Curry fires from downtown!"'},
+  {term:'Dunk',def:'A shot where the player jumps and forcefully puts the ball directly through the hoop with one or both hands from above the rim.'},
+  {term:'Euro Step',def:'A footwork move where a player takes one step to one side and a second step to the other to avoid a defender, within the legal 2-step gather rule.'},
+  {term:'Fast Break',def:'An offensive play where a team advances the ball up the court quickly before the defense can set up, often leading to easy baskets.'},
+  {term:'Flagrant Foul',def:'An unnecessary or excessive contact foul. Flagrant 1 gives 2 free throws + possession; Flagrant 2 results in automatic ejection.'},
+  {term:'Floater',def:'A high-arcing shot over a defender, used by smaller guards driving into the lane to avoid getting blocked by a taller player near the rim.'},
+  {term:'Hack-a-Shaq',def:"A strategy of intentionally fouling a poor free-throw shooter. Named after Shaquille O'Neal who shot under 50% from the line."},
+  {term:'Isolation (Iso)',def:"A play designed to clear space for one player to face a defender one-on-one, usually the team's best scorer."},
+  {term:'Jump Ball',def:'A method of starting play where the referee tosses the ball up between two opposing players who jump to tip it to their teammates.'},
+  {term:'Layup',def:'A two-point shot where a player approaches the basket and uses one hand to bank the ball off the backboard or lay it gently into the hoop.'},
+  {term:'Mismatch',def:'When an offensive player is guarded by a defender who is smaller, slower, or less skilled — creating an exploitable advantage.'},
+  {term:'Paint / The Key',def:'The rectangular area in front of the basket. Also called "the lane." Offensive players can only stay here for 3 seconds at a time.'},
+  {term:'Pick and Roll',def:"The NBA's most common play. A screener sets a pick for the ball-handler, then rolls toward the basket to receive a pass or draw the defense."},
+  {term:'Posterize',def:'When a player dunks powerfully over a defender — "putting them on a poster" because the image would be worthy of a poster.'},
+  {term:'Steal',def:'When a defensive player takes the ball away from an offensive player without committing a foul, resulting in a change of possession.'},
+  {term:'Swish',def:'A made basket where the ball passes cleanly through the net without touching the backboard or rim. Pure perfection.'},
+  {term:'Triple-Double',def:'When a player records double figures (10+) in three statistical categories in a single game. Rare and impressive.'},
+  {term:'Turnover',def:'When the offensive team loses possession due to a stolen pass, out-of-bounds mistake, or violation like travelling or double-dribble.'},
+  {term:'Weak Side',def:'The side of the court opposite from where the ball is. Smart offenses constantly look to attack the weak side where defenders relax.'},
+];
+
+/* RENDER */
+const tg=document.getElementById('teamsGrid');
+teams.forEach(t=>{
+  tg.innerHTML+=`<div class="team-card fade-up" style="--team-color:${t.color}">
+    <div class="team-abbr">${t.abbr}</div>
+    <div class="team-name">${t.name}</div>
+    <div class="team-city">${t.city} &bull; ${t.conf}</div>
+    <div class="team-record"><span>${t.w}-${t.l}</span><span>${(t.w/(t.w+t.l)).toFixed(3).replace('0.','.')} PCT</span></div>
+    <div style="margin-top:0.6rem;font-size:0.75rem;color:var(--muted)">${t.titles} title${t.titles!==1?'s':''} &bull; Est. ${t.founded} &bull; ${t.arena}</div>
+  </div>`;
+});
+
+const pg2=document.getElementById('playersGrid');
+players.forEach(p=>{
+  pg2.innerHTML+=`<div class="player-card fade-up">
+    <div class="player-num">${p.num}</div>
+    <div class="player-info">
+      <div class="player-name">${p.name}</div>
+      <div class="player-pos">${p.pos} &bull; ${p.team}</div>
+      <div style="font-size:0.75rem;color:var(--muted);margin-bottom:0.8rem">${p.height} &bull; Age ${p.age} &bull; Draft: ${p.draft}</div>
+      <div class="player-stats">
+        <div class="pstat"><div class="pstat-val">${p.pts}</div><div class="pstat-lbl">PPG</div></div>
+        <div class="pstat"><div class="pstat-val">${p.reb}</div><div class="pstat-lbl">RPG</div></div>
+        <div class="pstat"><div class="pstat-val">${p.ast}</div><div class="pstat-lbl">APG</div></div>
+      </div>
+    </div>
+  </div>`;
+});
+
+const ng=document.getElementById('newsGrid');
+news.forEach(n=>{
+  ng.innerHTML+=`<div class="news-card fade-up">
+    <span class="news-tag">${n.tag}</span>
+    <div class="news-title">${n.title}</div>
+    <div class="news-excerpt">${n.excerpt}</div>
+    <div class="news-meta">${n.date}</div>
+  </div>`;
+});
+
+const sb=document.getElementById('standingsBody');
+standings.forEach(conf=>{
+  sb.innerHTML+=`<tr class="conf-header"><td colspan="7">${conf.conf}</td></tr>`;
+  conf.teams.forEach(t=>{
+    const sw=t.streak.startsWith('W');
+    sb.innerHTML+=`<tr><td class="rank">${t.r}</td><td class="team-n">${t.name}</td><td class="wins">${t.w}</td><td class="losses">${t.l}</td><td class="pct">${t.pct}</td><td style="color:var(--muted)">${t.gb}</td><td class="${sw?'streak-w':'streak-l'}">${t.streak}</td></tr>`;
+  });
+});
+
+const tl=document.getElementById('timeline');
+history.forEach(h=>{
+  tl.innerHTML+=`<div class="timeline-item fade-up">
+    <div class="timeline-year">${h.year}</div>
+    <div class="timeline-event">${h.event}</div>
+    <div class="timeline-desc">${h.desc}</div>
+  </div>`;
+});
+
+const lg=document.getElementById('legendsGrid');
+legends.forEach(l=>{
+  lg.innerHTML+=`<div class="legend-card fade-up">
+    <div class="legend-era">${l.era}</div>
+    <div class="legend-name">${l.name}</div>
+    <div class="legend-team">${l.teams}</div>
+    <div class="legend-bio">${l.bio}</div>
+    <div class="legend-stats">
+      <div class="lstat"><div class="lstat-val">${l.pts}</div><div class="lstat-lbl">PPG</div></div>
+      <div class="lstat"><div class="lstat-val">${l.reb}</div><div class="lstat-lbl">RPG</div></div>
+      <div class="lstat"><div class="lstat-val">${l.ast}</div><div class="lstat-lbl">APG</div></div>
+    </div>
+  </div>`;
+});
+
+const posg=document.getElementById('positionsGrid');
+positions.forEach(p=>{
+  posg.innerHTML+=`<div class="position-card fade-up" style="--pos-color:${p.color}">
+    <div class="pos-number">${p.num}</div>
+    <div class="pos-name">${p.name}</div>
+    <span class="pos-abbr">${p.abbr}</span>
+    <div class="pos-desc">${p.desc}</div>
+    <div class="pos-skills">${p.skills.map(s=>`<span class="skill-tag">${s}</span>`).join('')}</div>
+    <div class="pos-examples"><strong>All-Time Examples:</strong> ${p.examples}</div>
+  </div>`;
+});
+
+const rg=document.getElementById('rulesGrid');
+rules.forEach(r=>{
+  rg.innerHTML+=`<div class="rule-card fade-up">
+    <div class="rule-icon">${r.icon}</div>
+    <div class="rule-title">${r.title}</div>
+    <div class="rule-text">${r.text}</div>
+    <span class="rule-highlight">${r.highlight}</span>
+  </div>`;
+});
+
+const hofg=document.getElementById('hofGrid');
+hofPlayers.forEach(h=>{
+  hofg.innerHTML+=`<div class="hof-card fade-up">
+    <div class="hof-year">Inducted ${h.year}</div>
+    <div class="hof-name">${h.name}</div>
+    <div class="hof-role">${h.role}</div>
+    <div class="hof-desc">${h.desc}</div>
+    <div class="hof-achievements">${h.achievements.map(a=>`<div class="hof-achievement">${a}</div>`).join('')}</div>
+  </div>`;
+});
+
+const recg=document.getElementById('recordsGrid');
+records.forEach(r=>{
+  recg.innerHTML+=`<div class="record-card fade-up">
+    <div class="record-cat">${r.cat}</div>
+    <div><span class="record-val">${r.val}</span><span class="record-unit">${r.unit}</span></div>
+    <div class="record-holder">${r.holder}</div>
+    <div class="record-context">${r.context}</div>
+  </div>`;
+});
+
+const gg=document.getElementById('glossGrid');
+function renderGloss(filter){
+  gg.innerHTML='';
+  glossary.forEach(g=>{
+    const show=!filter||g.term.toLowerCase().includes(filter)||g.def.toLowerCase().includes(filter);
+    gg.innerHTML+=`<div class="gloss-card${show?'':' gloss-hidden'}">
+      <div class="gloss-term">${g.term}</div>
+      <div class="gloss-def">${g.def}</div>
+    </div>`;
+  });
+}
+renderGloss('');
+document.getElementById('glossSearch').addEventListener('input',e=>renderGloss(e.target.value.toLowerCase().trim()));
+
+/* SCROLL & NAV */
+const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});},{threshold:0.08});
+document.querySelectorAll('.fade-up').forEach(el=>obs.observe(el));
+
+const sections=document.querySelectorAll('section[id]');
+const navLinks=document.querySelectorAll('.nav-link');
+const activeObs=new IntersectionObserver(entries=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      navLinks.forEach(l=>l.classList.remove('active'));
+      navLinks.forEach(l=>{if(l.getAttribute('href')==='#'+entry.target.id)l.classList.add('active');});
+    }
+  });
+},{rootMargin:'-50% 0px -50% 0px'});
+sections.forEach(s=>activeObs.observe(s));
+
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const id=a.getAttribute('href').slice(1);
+    const target=document.getElementById(id);
+    if(target){
+      e.preventDefault();
+      const top=target.getBoundingClientRect().top+window.scrollY-68;
+      window.scrollTo({top,behavior:'smooth'});
+      mobileMenu.classList.remove('open');
+      hamburger.classList.remove('open');
+    }
+  });
+});
+
+const hamburger=document.getElementById('hamburger');
+const mobileMenu=document.getElementById('mobileMenu');
+hamburger.addEventListener('click',()=>{hamburger.classList.toggle('open');mobileMenu.classList.toggle('open');});
+</script>
+</body>
+</html>
